@@ -12,7 +12,7 @@ const c = new AudioContext;
 
 
 //Input vars
-var SoundType = "manual"; // This can be manual, piano, acoustic, edm or organ, when it is manual we use the other params, if it is any of the other we only use duration2 and threshold
+var SoundType = "acoustic"; // This can be manual, piano, acoustic, edm or organ, when it is manual we use the other params, if it is any of the other we only use duration2, NumTimes and threshold
 
 // All this are in seconds, they are to parametrize the waveform
 var attack = 0.06; 
@@ -35,8 +35,8 @@ var ApplyDist = true; // true or false
 var DistValue = 400; //Ammount of distortion
 var DistOver = "2x";//Oversampling after distortion. Valid values are 'none', '2x', or '4x'. 
 
-var NumFres = 12; //How many frequencies we want to have in total
-var NumTimes = 50; //How many time steps we want to have in total 
+var NumFreqs = 120; //How many frequencies we want to have in total
+var NumTimes = 20; //How many time steps we want to have in total 
 
 var detune = true; //Detune the oscilators can only be true or false
 var unisonWidth =  10; //Detune value, it can be a low number, from 1 to 20 more or less
@@ -80,8 +80,9 @@ function drawLine(x){
 function playButton(){
     //document.getElementById('hihi').addEventListener('click',function () { playImage(reduceImage(data2Play)); });
     document.getElementById('hihi').addEventListener('click',function () {
-        if(SoundType == "piano" || SoundType == "acoustic" || SoundType == "organ" || SoundType == "edm" || SoundType == "manual"){ 
-        playImage(normalizeImage(horizontalDerivative(medianFilter(data2Play)),NumFres,NumTimes));}
+        if(SoundType == "piano" || SoundType == "acoustic" || SoundType == "organ" || SoundType == "edm" || SoundType == "manual"){
+            if(SoundType != "manual"){NumFreqs = 12;}
+        playImage(normalizeImage(horizontalDerivative(medianFilter(data2Play)),NumFreqs,NumTimes));}
         else{alert("Please select a valid SoundType")}
     } 
     );
