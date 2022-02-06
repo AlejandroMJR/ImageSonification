@@ -10,38 +10,22 @@ const math = create(all, config)
 
 const c = new AudioContext;
 
-
-//Input vars
-var SoundType = "manual";
-var attack = 0.06;
-var release = 0.1;
-var decay = 0.06;
-var sustain = 0.15;
-
-var threshold = 0.3;
+var attack = 0.1;
+var release = 0.2;
+var decay = 0.1;
+var sustain = 0.3;
 
 var filtFreq = 500;
 var Qslider = 4;
 
-var NumFres = 12;
-var NumTimes = 20;
-
-var detune = true;
+var detune = false;
 var unisonWidth =  10;
 
 var duration = (attack + release + decay + sustain ) *1000;
 
 var harmonics = [1,2,1,2,1];
-//------------------------------------
 
-var piano = Synth.createInstrument('piano');
-var acoustic = Synth.createInstrument('acoustic');
-var organ = Synth.createInstrument('organ');
-var edm = Synth.createInstrument('edm');
 
-var NOTES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-
-var b;
 var W;
 var H;
 var imageData;
@@ -64,21 +48,12 @@ function drawLine(x){
 }
 
 function playButton(){
-    //document.getElementById('hihi').addEventListener('click',function () { playImage(reduceImage(data2Play)); });
-    document.getElementById('hihi').addEventListener('click',function () {
-        if(SoundType == "piano" || SoundType == "acoustic" || SoundType == "organ" || SoundType == "edm" || SoundType == "manual"){ 
-        playImage(normalizeImage(horizontalDerivative(medianFilter(data2Play)),NumFres,NumTimes));}
-        else{alert("Please select a valid SoundType")}
-    } 
-    );
-        
-
+    document.getElementById('hihi').addEventListener('click',function () { playImage(reduceImage(data2Play)); });
 }
 
 function playImage(data){
-    //console.log(data);
+    //console.log(data[0].length);
     for(var j = 0; j <data[0].length; j++){
-       
         amps = selectColumn(data,j);
         setTimeout(playOscillators, duration*j,amps);
         setTimeout(drawLine, duration*j, (j+ 1/2)*W/20);
@@ -122,30 +97,20 @@ function selectColumn(array, number) {
 function playOscillators(amps){
     //console.log(amps.length);
     for(i=0; i< amps.length; i++){
-        if(amps[i] > threshold){
+        if(amps[i] > 80){
+            
+            f = 440*Math.pow(2,i/12)
+            harmonicsWeigths = math.multiply(harmonics,amps[i]);
+            console.log(amps[i]);
+            
+            createHarmonics(f,harmonicsWeigths,detune);
 
-            n = amps.length - i - 1;
-            console.log(n);
-            f = 440*Math.pow(2,n/12)
+            //createOscillators(f,amps[i], 0); 
+            //createOscillators(f,amps[i], -unisonWidth); 
+            //createOscillators(f,amps[i], unisonWidth); 
 
-            if(SoundType == "manual"){
-                harmonicsWeigths = math.multiply(harmonics,amps[i]);
-                createHarmonics(f,harmonicsWeigths,detune);}
-
-            else if(SoundType == "piano"){
-                piano.play(NOTES[n], 4, duration/1000);}
-
-            else if(SoundType == "acoustic"){
-                acoustic.play(NOTES[n], 4, duration/1000);}
-
-            else if(SoundType == "organ"){
-                organ.play(NOTES[n], 4, duration/1000);}
-
-            else if(SoundType == "edm"){
-                edm.play(NOTES[n], 4, duration/1000);}
-
-       
-        }   
+        
+        }    
     }
 }
 
@@ -170,7 +135,7 @@ function createOscillators(f, amplitud, detune){
     now = c.currentTime;
     g.gain.setValueAtTime(0, now);
     //console.log(f)    
-    g.gain.linearRampToValueAtTime(amplitud/(2), now+attack);
+    g.gain.linearRampToValueAtTime(amplitud/(255*12), now+attack);
     g.gain.setTargetAtTime(sustain, now+attack, decay);
     g.gain.linearRampToValueAtTime(0, now+attack+release+decay+sustain);
     o.start(now);
@@ -259,117 +224,5 @@ function getImageData(img) {
 //         B[i/4] = imgData[i+2];
 //     }
 // }
-
-function normalizeImage(matrix,freqBins,timeStp){
-    y_len = matrix.length;
-    x_len = matrix[0].length;
-    new_y = Math.floor(y_len/freqBins);
-    new_x = Math.floor(x_len/timeStp);
-
-    Q = 0;
-    var data = [];
-    for(var i=0; i<freqBins; i++) {
-        data[i] = new Array(timeStp).fill(0);
-    }
-    //data = data / Math.max(data);
-    //console.log(y_len);
-    // tengo que definir indices para caminar por imagen
-    for( var k = 0 ; k < freqBins; k++){
-        for( var m = 0; m < timeStp; m++){
-            for (var j = 0 ; j < new_y ; j++){
-                for (var i = 0 ; i  < new_x ; i++){
-                    data[k][m]+=matrix[k*new_y + j][m*new_x + i]/(new_x*new_y); 
-                }
-            }
-            if (data[k][m]> Q){
-                Q=data[k][m]
-                //console.log(Q);
-            }
-        }
-    }
-    
-    for( var k = 0 ; k < freqBins; k++){
-        for( var m = 0; m < timeStp; m++){
-            data[k][m]/=Q;
-        }
-    }
-    return data;
-
-
-}
-
-function medianFilter(matrix){
-    y_len = matrix.length;
-    x_len = matrix[0].length;
-    var data = [];
-    for(var i=0; i<y_len; i++) {
-        data[i] = new Array(x_len);
-    }
-    var knl = [];
-    //console.log(y_len);
-    //aca lleno los bordes de la imagen de salida con los bordes de la imagen de entrada
-    for (var j = 0 ; j < y_len - 1 ; j++){
-        data[j][0]=matrix[j][0]
-        data[j][x_len - 1]=matrix[j][x_len - 1]
-    }
-    
-    for (var i = 1 ; i  < x_len - 2 ; i++){
-        data[0][i]=matrix[0][i]
-        data[y_len - 1][i]=matrix[y_len - 1][i]
-    }
-
-    // aca aplico el filtro de mediana
-     for (var j = 1 ; j < y_len-1 ; j++){
-        for (var i = 1 ; i  < x_len-1 ; i++){
-            knl = [matrix[j-1][i-1], matrix[j][i-1], matrix[j+1][i-1], matrix[j-1][i], matrix[j][i], matrix[j+1][i],
-            matrix[j-1][i+1], matrix[j][i+1], matrix[j+1][i+1]];
-            data[j-1][i-1]= median(knl);  
-        }
-    }
-    return data;
-    
-}
-
-function horizontalDerivative(matrix){
-    y_len = matrix.length;
-    x_len = matrix[0].length;
-    var data = [];
-    for(var i=0; i<y_len-2; i++) {
-        data[i] = new Array(x_len-2);
-    }
-    /*
-    var sbl_knl = [-1 , -2 ,-1 ,0, 0, 0, 1, 2, 1];
-    //console.log(y_len);
-     for (var j = 1 ; j < y_len-2 ; j++){
-        for (var i = 1 ; i  < x_len-2 ; i++){
-            data[j-1][i-1]=matrix[j-1][i-1]*sbl_knl[0] + matrix[j][i-1]*sbl_knl[1] + matrix[j+1][i-1]*sbl_knl[2] +
-            matrix[j-1][i]*sbl_knl[3] + matrix[j][i]*sbl_knl[4] + matrix[j+1][i]*sbl_knl[5] +
-            matrix[j-1][i+1]*sbl_knl[6] + matrix[j][i+1]*sbl_knl[7] + matrix[j+1][i+1]*sbl_knl[8]
-              
-        }
-
-    
-        //console.log(j);
-     }
-     */
-    
-
-    var sbl_knl = [-1 , -1 ,1, 1];
-    //console.log(y_len);
-     for (var j = 1 ; j < y_len-1 ; j++){
-        for (var i = 1 ; i  < x_len-1 ; i++){
-            data[j-1][i-1]=Math.abs(matrix[j-1][i-1]*sbl_knl[0] + matrix[j][i-1]*sbl_knl[1] + 
-            matrix[j-1][i]*sbl_knl[2] + matrix[j][i]*sbl_knl[3]);       
-        }
-    }
-    return data;
-    
-}
-
-const median = arr => {
-    const mid = Math.floor(arr.length / 2),
-        nums = [...arr].sort((a, b) => a - b);
-    return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
-};
 
 export { showImage, playButton};
