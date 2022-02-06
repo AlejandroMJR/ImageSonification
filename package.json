@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "mathjs": "^10.0.0",
+    "ndarray": "^1.0.19",
+    "parcel": "^2.0.1",
+    "simple-statistics": "^7.7.0"
+  }
+}
