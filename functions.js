@@ -13,7 +13,7 @@ const c = new AudioContext;
 
 //Input vars
 var SoundType = "acoustic"; // This can be manual, piano, acoustic, edm or organ, when it is manual we use the other params, if it is any of the other we only use duration2, ScaleType, NumTimes and threshold
-var ScaleType = "Melodic";  // Can be any from the object "Scales" defined above
+var ScaleType = "Blues";  // Can be any from the object "Scales" defined above
 
 
 // All this are in seconds, they are to parametrize the waveform
@@ -68,8 +68,8 @@ const Scales = {
     Locrian   : ["B","C","D","E","F","G","A","B"],
     Melodic   : ["C","D","D#","F","G","A","B","C"],
     Harmonic  : ["D","E","F","G","A","A#","C#","D"],
-    Blues     : ["E",,"G","A","A#","B","D","E"],
-    FPenta    : ["F","G","A",,"C","D",,"F"],
+    Blues     : ["E","G","A","A#","B","D","E"],
+    FPenta    : ["F","G","A","C","D","F"],
     CPenta    : ["C","D","E","G","A","C"],
     GPenta    : ["G","A#","C","D","F","G"],
     APenta    : ["A","C","D","E","G","A"]
@@ -155,7 +155,7 @@ function selectColumn(array, number) {
 // }
 
 function playOscillators(amps){
-    //console.log(amps.length);
+    console.log(amps.length);
     norm = 0;
     for(i=0; i< amps.length; i++){
         if(amps[i] > threshold){
@@ -166,7 +166,7 @@ function playOscillators(amps){
         if(amps[i] > threshold){
             Synth.setVolume(1/norm - 0.01);
             n = amps.length - i - 1;
-            console.log(amps[i]);
+            //console.log(amps[i]);
             f = baseFreq*Math.pow(2,n/12)
 
             if(SoundType == "manual"){
