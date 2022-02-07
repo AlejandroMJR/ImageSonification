@@ -12,7 +12,9 @@ const c = new AudioContext;
 
 
 //Input vars
-var SoundType = "acoustic"; // This can be manual, piano, acoustic, edm or organ, when it is manual we use the other params, if it is any of the other we only use duration2, NumTimes and threshold
+var SoundType = "acoustic"; // This can be manual, piano, acoustic, edm or organ, when it is manual we use the other params, if it is any of the other we only use duration2, ScaleType, NumTimes and threshold
+var ScaleType = "Dorian";  // Can be any from the object "Scales" defined above
+
 
 // All this are in seconds, they are to parametrize the waveform
 var attack = 0.06; 
@@ -46,7 +48,7 @@ var harmonics = [1,0.5,1,0.5,1]; // Weigths for the harmonics, the size of the a
 var duration2 = 2; //Duration of notes when preset synth is used
 //------------------------------------
 
-var duration = (attack + release + decay + sustain ) *1000; // duration when manual
+const duration = (attack + release + decay + sustain ) *1000; // duration when manual
 var norm = 0;
 
 var piano = Synth.createInstrument('piano');
@@ -54,7 +56,25 @@ var acoustic = Synth.createInstrument('acoustic');
 var organ = Synth.createInstrument('organ');
 var edm = Synth.createInstrument('edm');
 
-var NOTES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+//Scales
+const Scales = {
+    Chromatic : ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],
+    Ionian    : ["C","D","E","F","G","A","B","C"],
+    Dorian    : ["D","E","F","G","A","B","C","D"],
+    Phrygian  : ["E","F","G","A","B","C","D","E"],
+    Lydian    : ["F","G","A","B","C","D","E","F"],
+    Mixo      : ["G","A","B","C","D","E","F","G"],
+    Aeolian   : ["A","B","C","D","E","F","G","A"],
+    Locrian   : ["B","C","D","E","F","G","A","B"],
+    Melodic   : ["C","D","D#","F","G","A","B","C"],
+    Harmonic  : ["D","E","F","G","A","A#","C#","D"],
+    Blues     : ["E",,"G","A","A#","B","D","E"],
+    FPenta    : ["F","G","A",,"C","D",,"F"],
+    CPenta    : ["C","D","E","G","A","C"],
+    GPenta    : ["G","A#","C","D","F","G"],
+    APenta    : ["A","C","D","E","G","A"]
+
+};
 
 var W;
 var H;
@@ -81,7 +101,7 @@ function playButton(){
     //document.getElementById('hihi').addEventListener('click',function () { playImage(reduceImage(data2Play)); });
     document.getElementById('hihi').addEventListener('click',function () {
         if(SoundType == "piano" || SoundType == "acoustic" || SoundType == "organ" || SoundType == "edm" || SoundType == "manual"){
-            if(SoundType != "manual"){NumFreqs = 12;}
+            if(SoundType != "manual"){NumFreqs = Scales[ScaleType].length;}
         playImage(normalizeImage(horizontalDerivative(medianFilter(data2Play)),NumFreqs,NumTimes));}
         else{alert("Please select a valid SoundType")}
     } 
@@ -154,16 +174,16 @@ function playOscillators(amps){
                 createHarmonics(f,harmonicsWeigths,detune);}
 
             else if(SoundType == "piano"){
-                piano.play(NOTES[n], 4, duration2);}
+                piano.play(Scales[ScaleType][n], 4, duration2);}
 
             else if(SoundType == "acoustic"){
-                acoustic.play(NOTES[n], 4, duration2);}
+                acoustic.play(Scales[ScaleType][n], 4, duration2);}
 
             else if(SoundType == "organ"){
-                organ.play(NOTES[n], 4, duration2);}
+                organ.play(Scales[ScaleType][n], 4, duration2);}
 
             else if(SoundType == "edm"){
-                edm.play(NOTES[n], 4, duration2);}
+                edm.play(Scales[ScaleType][n], 4, duration2);}
 
        
         }   
