@@ -13,7 +13,7 @@ const c = new AudioContext;
 
 //Input vars
 var SoundType = "acoustic"; // This can be manual, piano, acoustic, edm or organ, when it is manual we use the other params, if it is any of the other we only use duration2, ScaleType, NumTimes and threshold
-var ScaleType = "Dorian";  // Can be any from the object "Scales" defined above
+var ScaleType = "Melodic";  // Can be any from the object "Scales" defined above
 
 
 // All this are in seconds, they are to parametrize the waveform
@@ -37,7 +37,7 @@ var ApplyDist = true; // true or false
 var DistValue = 400; //Ammount of distortion
 var DistOver = "2x";//Oversampling after distortion. Valid values are 'none', '2x', or '4x'. 
 
-var NumFreqs = 120; //How many frequencies we want to have in total
+var NumFreqs = 12; //How many frequencies we want to have in total
 var NumTimes = 20; //How many time steps we want to have in total 
 
 var detune = true; //Detune the oscilators can only be true or false
@@ -164,9 +164,9 @@ function playOscillators(amps){
     }
     for(i=0; i< amps.length; i++){
         if(amps[i] > threshold){
-            norm = norm + 1;
+            Synth.setVolume(1/norm - 0.01);
             n = amps.length - i - 1;
-            //console.log(n);
+            console.log(amps[i]);
             f = baseFreq*Math.pow(2,n/12)
 
             if(SoundType == "manual"){
@@ -181,7 +181,7 @@ function playOscillators(amps){
 
             else if(SoundType == "organ"){
                 organ.play(Scales[ScaleType][n], 4, duration2);}
-
+                //console.log("volume is " + Synth.getVolume());}
             else if(SoundType == "edm"){
                 edm.play(Scales[ScaleType][n], 4, duration2);}
 
