@@ -1,4 +1,4 @@
-import { showImage, playButton} from "./functions";
+import { showImage, playButton, pianoButton, acousticButton, edmButton, organButton, manualButton, sineButton, squareButton, sawtoothButton, triangleButton} from "./functions";
 
 
 
@@ -17,4 +17,12 @@ document.getElementById('myFile').onchange = function (evt) {
 
 
 playButton();
-
+pianoButton();
+acousticButton();
+edmButton();
+organButton();
+manualButton();
+sineButton();
+squareButton();
+sawtoothButton();
+triangleButton();
